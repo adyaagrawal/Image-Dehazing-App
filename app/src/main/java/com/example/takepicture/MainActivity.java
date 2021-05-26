@@ -1,9 +1,7 @@
 package com.example.takepicture;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -18,7 +16,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView image;
     Uri image_uri;
     Uri gallery_uri;
+    Uri final_uri;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -90,10 +95,37 @@ public class MainActivity extends AppCompatActivity {
         dehaze.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,Dehaze.class));
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                final StorageReference filepath = storageReference.child("test.jpg");
+                filepath.putFile(final_uri).continueWithTask(new Continuation() {
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return filepath.getDownloadUrl();
+                    }
 
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri uri = task.getResult();
+                            String myurl;
+                            myurl = uri.toString();
+                            Toast.makeText(MainActivity.this, "Uploaded Successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, myurl, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Uploaded Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                apicall();
             }
         });
+    }
+
+    private void apicall() {
     }
 
     private void pickImagefromgallery() {
@@ -144,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
             switch(requestCode){
                 case IMAGE_CAPTURE_CODE:
                         image.setImageURI(image_uri);
+                        final_uri=image_uri;
                         break;
                 case IMAGE_PICK_CODE:
                     gallery_uri=data.getData();
@@ -151,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     {
                         Bitmap bitmap=MediaStore.Images.Media.getBitmap(getContentResolver(),gallery_uri);
                         image.setImageBitmap(bitmap);
+                        final_uri=gallery_uri;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

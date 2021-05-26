@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "735272100145",
+    "project_id": "dehazing-app-d1ab2",
+    "storage_bucket": "dehazing-app-d1ab2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735272100145:android:88a0c07a4e6f9415b91010",
+        "android_client_info": {
+          "package_name": "com.example.takepicture"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "735272100145-bcd5bv4jo0uvlqt4eimtlqmjue8qpgu4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.takepicture",
+            "certificate_hash": "53dac16342c9e54e5e7fd1dc5e56a386797dfc8b"
+          }
+        },
+        {
+          "client_id": "735272100145-3rchhiidiosrv7pv0ac5pu5fm6p7b04h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiGPQFljuXqLLTNCU4S4H-hzIaz3Ffxmg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "735272100145-3rchhiidiosrv7pv0ac5pu5fm6p7b04h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
