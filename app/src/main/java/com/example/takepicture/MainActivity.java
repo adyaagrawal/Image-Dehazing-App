@@ -1,8 +1,8 @@
 package com.example.takepicture;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,10 +15,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -36,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     Uri image_uri;
     Uri gallery_uri;
     Uri final_uri;
-
+    ProgressDialog dialog;
+    FirebaseDatabase mdatabase;
+    DatabaseReference det;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -95,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         dehaze.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog = new ProgressDialog(MainActivity.this);
+                dialog.setMessage("Uploading to Firebase");
+                dialog.show();
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference();
                 final StorageReference filepath = storageReference.child("test.jpg");
                 filepath.putFile(final_uri).continueWithTask(new Continuation() {
@@ -110,22 +116,31 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
+                            dialog.dismiss();
                             Uri uri = task.getResult();
                             String myurl;
                             myurl = uri.toString();
                             Toast.makeText(MainActivity.this, "Uploaded Successfully", Toast.LENGTH_SHORT).show();
                             Toast.makeText(MainActivity.this, myurl, Toast.LENGTH_SHORT).show();
+                            mdatabase=FirebaseDatabase.getInstance();
+                            det=mdatabase.getReference();
+                            mdatabase.getReference().child("image").child("status").setValue("Image uploaded").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent intent=new Intent(MainActivity.this,Dehaze.class);
+                                    intent.putExtra("original image",final_uri.toString());
+                                    startActivity(intent);
+                                }
+                            });
+
                         } else {
                             Toast.makeText(MainActivity.this, "Uploaded Failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-                apicall();
+
             }
         });
-    }
-
-    private void apicall() {
     }
 
     private void pickImagefromgallery() {
@@ -144,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,image_uri);
         startActivityForResult(cameraIntent,IMAGE_CAPTURE_CODE);
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -191,7 +205,5 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
     }
-
 }
