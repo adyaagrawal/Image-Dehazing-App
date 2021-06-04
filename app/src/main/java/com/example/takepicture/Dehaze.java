@@ -14,6 +14,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -92,8 +94,10 @@ public class Dehaze extends AppCompatActivity {
                     String url1=snapshot.child("dehazed1url").getValue().toString();
                     String url2=snapshot.child("dehazed2url").getValue().toString();
                     img1.setImageURI(original_uri);
-                    Picasso.with(getBaseContext()).load(url1).into(img2);
-                    Picasso.with(getBaseContext()).load(url2).into(img3);
+                    Picasso.with(getBaseContext()).load(url1).memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .networkPolicy(NetworkPolicy.NO_CACHE).into(img2);
+                    Picasso.with(getBaseContext()).load(url2).memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .networkPolicy(NetworkPolicy.NO_CACHE).into(img3);
                     dialog.dismiss();
                 }
             }
